@@ -1,0 +1,124 @@
+#summary eCouch API documentation
+
+=Module ecouch=
+
+eCouch is an [http://www.erlang.org/ Erlang] application that provides access to [http://couchdb.org/ CouchDb] servers.
+
+Copyright © 2008 Vitor Rodrigues
+
+Version: 0.1
+
+Behaviours: application.
+
+Authors: Vitor Rodrigues (vitor@tarpipe.com).
+
+==Characteristics==
+
+  * eCouch is an application that provides an API to a [http://couchdb.org/ CouchDb] server
+  * It uses the [http://www.lshift.net/blog/2007/02/17/json-and-json-rpc-for-erlang rfc4627] module from [http://www.lshift.net/ LShift]
+  * eCouch design was inspired by the article [http://www.trapexit.org/Building_a_Non-blocking_TCP_server_using_OTP_principles Building a Non-blocking TCP server using OTP principles]
+  * It assumes that [http://www.erlang.org/doc/apps/inets/index.html inets] application is running
+
+==Data Types==
+
+*array()* = [val()]
+
+*host()* = string()
+
+*json()* = obj() | array() | num() | str() | true | false | null
+
+*key()* = str() | atom()
+
+*num()* = int() | float()
+
+*obj()* = {obj, [{key(), val()}]}
+
+*startargs()* = {host(), tcp_port()}
+
+*str()* = bin()
+
+*tcp_port()* = int()
+
+*val()* = obj() | array() | num() | str() | true | false | null
+
+==Function Details==
+===db_create/1===
+
+db_create(DatabaseName::string()) -> ok | {error, Reason::term()}
+
+Create a database
+===db_delete/1===
+
+db_delete(DatabaseName::string()) -> ok | {error, Reason::term()}
+
+Delete a database
+===db_info/1===
+
+db_info(DatabaseName::string()) -> {ok, Info::json()} | {error, Reason::term()}
+
+Database info
+===db_list/0===
+
+db_list() -> ok | {error, Reason::term()}
+
+List databases
+===doc_create/2===
+
+doc_create(DatabaseName::string(), Doc::json()) -> {ok, Response::json()} | {error, Reason::term()}
+
+Create document
+===doc_create/3===
+
+doc_create(DatabaseName::string(), DocName::string(), Doc::json()) -> {ok, Response::json()} | {error, Reason::term()}
+
+Create a named document
+===doc_delete/3===
+
+doc_delete(DatabaseName::string(), DocName::string(), Rev::string()) -> {ok, Response::json()} | {error, Reason::term()}
+
+Delete document
+===doc_get/2===
+
+doc_get(DatabaseName::string(), DocName::string) -> {ok, Response::json()} | {error, Reason::term()}
+
+Get document
+===doc_get/3===
+
+doc_get(DatabaseName::string(), DocName::string(), Options::options()) -> {ok, Response::json()} | {error, Reason::term()}
+
+Get document
+===doc_get_all/1===
+
+doc_get_all(DatabaseName::string()) -> {ok, Response::json()} | {error, Reason::term()}
+
+Get all documents
+===doc_get_all/2===
+
+doc_get_all(DatabaseName::string(), Options::options()) -> {ok, Response::json()} | {error, Reason::term()}
+
+Get all documents
+===doc_update/3===
+
+doc_update(DatabaseName::string(), DocName::string(), Doc::json()) -> {ok, Response::json()} | {error, Reason::term()}
+
+Update document
+===start/2===
+
+start(Type::_Type, StartArgs::startargs()) -> {ok, Pid} | {ok, Pid, State} | {error, Reason}
+
+This function is called whenever an application is started using application:start/1,2, and should start the processes of the application. If the application is structured according to the OTP design principles as a supervision tree, this means starting the top supervisor of the tree.
+===stop/1===
+
+stop(State) -> void()
+
+This function is called whenever an application has stopped. It is intended to be the opposite of Module:start/2 and should do any necessary cleaning up. The return value is ignored.
+===view_adhoc/2===
+
+view_adhoc(DatabaseName::string(), Fun::json()) -> {ok, Response::json()} | {error, Reason::term()}
+
+Access an adhoc view
+===view_adhoc/3===
+
+view_adhoc(DatabaseName::string(), Fun::json(), Options::options()) -> {ok, Response::json} | {error, Reason::term()}
+
+Access an adhoc view
