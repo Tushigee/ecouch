@@ -10,7 +10,7 @@ Version: 0.1
 
 Behaviours: application.
 
-Authors: Vitor Rodrigues (vitor@tarpipe.com).
+Authors: Vitor Rodrigues (vitor tarpipe (dot) com).
 
 ==Characteristics==
 
