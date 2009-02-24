@@ -93,7 +93,7 @@
 %% @end 
 %%--------------------------------------------------------------------
 
-start(_Type, {Host, Port}) ->
+start(_Type, {Host, Port, User, Pass}) ->
     case get_app_opt(host, Host) of
         none ->
             {error, "Missing required config option 'host'"};
@@ -102,15 +102,30 @@ start(_Type, {Host, Port}) ->
                 none ->
                     {error, "Missing required config option 'port'"};
                 PortVal ->
-                    supervisor:start_link({local, ?MODULE}, ?MODULE, [HostVal, PortVal])
-        end
+                    case get_app_opt(user, User) of
+                        none ->
+                            supervisor:start_link({local, ?MODULE},
+                                                  ?MODULE,
+                                                  [HostVal, PortVal,
+                                                   none, none]);
+                        UserVal ->
+                            case get_app_opt(pass, Pass) of
+                                none ->
+                                    {error, "Missing required config options 'pass'"};
+                                PassVal ->
+                                    supervisor:start_link({local, ?MODULE},
+                                                          ?MODULE,
+                                                          [HostVal, PortVal,
+                                                           UserVal, PassVal])
+                            end
+                    end
+            end
     end.
     
 %% @hidden
 
 start_client() ->
     supervisor:start_child(ec_client_sup, []).
-
 
 %%--------------------------------------------------------------------
 %% @spec stop(State) -> void()
@@ -125,13 +140,13 @@ stop(_State) ->
 
 %% @hidden
     
-init([Host, Port]) ->
+init([Host, Port, User, Pass]) ->
     {ok,
         {_SupFlags = {one_for_one, ?MAX_RESTART, ?MAX_TIME},
             [
               % eCouch Listener
               {   ec_listener_sup,                         % Id       = internal id
-                  {ec_listener,start_link,[Host, Port]},   % StartFun = {M, F, A}
+                  {ec_listener,start_link,[Host, Port, User, Pass]},   % StartFun = {M, F, A}
                   permanent,                               % Restart  = permanent | transient | temporary
                   2000,                                    % Shutdown = brutal_kill | int() >= 0 | infinity
                   worker,                                  % Type     = worker | supervisor
