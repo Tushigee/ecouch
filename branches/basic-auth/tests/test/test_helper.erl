@@ -6,13 +6,18 @@
     recreate_db/0,
     get/1, get/2, get/3,
     delete/1, delete/2, delete/3,
-    put/2, put/3, put/4
+    put/2, put/3, put/4,
+    make_url/3, make_url/2, make_url/1
 ]).
+
+%% put your credentials here if required
+-define(SERVER, "http://127.0.0.1:5984/").
+%% -define(SERVER, "http://admin:password@127.0.0.1:5984/").
 
 recreate_db() ->
     {ok, _} = delete("ecouch_ct_test"),
     {ok, {{_,201,_}, _, _}} =
-        http:request(put, {"http://127.0.0.1:5984/ecouch_ct_test", [], "application/javascript", []}, [],[]).
+        http:request(put, {make_url("ecouch_ct_test"), [], "application/javascript", []}, [],[]).
 
 get(DatabaseName) ->
     get(DatabaseName, "", []).
@@ -43,14 +48,20 @@ delete(DatabaseName, DocId, Parameters) ->
 
     http:request(delete, {Url, []}, [], []).
 
+make_url(DatabaseName) ->
+    make_url(DatabaseName, "", []).
+
+make_url(DatabaseName, DocId) ->
+    make_url(DatabaseName, DocId, []).
+
 make_url(DatabaseName, DocId, Parameters) ->
     Url = case DocId of
-            "" -> "http://127.0.0.1:5984/" ++ DatabaseName;
-            _ -> "http://127.0.0.1:5984/" ++ DatabaseName ++ "/" ++ DocId
+            "" -> "";
+            _ -> "/" ++ DocId
         end,
-            
-    Url ++ params_to_string(Parameters).
     
+    ?SERVER ++ DatabaseName ++ Url ++ params_to_string(Parameters).
+
 params_to_string(TupleList) ->
     case params_to_string(TupleList, "") of
         "" -> "";
