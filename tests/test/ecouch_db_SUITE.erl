@@ -41,7 +41,6 @@ test_database_creation(_Config) ->
     
     % Now test.
     ?line {ok, {obj, [{"ok", true}]}} = ecouch:db_create("ecouch_db_example_test"),
-    io:fwrite("URL: ~s ~n", [test_helper:make_url("ecouch_db_example_test")]),
     ?line {ok, {{_,200,_}, _,_}} = http:request(delete, {test_helper:make_url("ecouch_db_example_test"), []}, [], []),
     ok.
 

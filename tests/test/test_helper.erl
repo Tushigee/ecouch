@@ -1,5 +1,6 @@
 -module(test_helper).
 
+-import(ecouch).
 -import(http).
 -import(ct).
 -export([
@@ -7,12 +8,10 @@
     get/1, get/2, get/3,
     delete/1, delete/2, delete/3,
     put/2, put/3, put/4,
+    server_url/0,
     make_url/3, make_url/2, make_url/1
 ]).
 
-%% put your credentials here if required
--define(SERVER, "http://127.0.0.1:5984/").
-%% -define(SERVER, "http://admin:password@127.0.0.1:5984/").
 
 recreate_db() ->
     {ok, _} = delete("ecouch_ct_test"),
@@ -48,6 +47,18 @@ delete(DatabaseName, DocId, Parameters) ->
 
     http:request(delete, {Url, []}, [], []).
 
+server_url() ->
+    Credentials = case application:get_env(ecouch, user) of
+            {ok, User} -> case application:get_env(ecouch, pass) of
+                    {ok, Pass} -> User ++ ":" ++ Pass ++ "@";
+                    _ -> User ++ "@"
+                end;
+            _ -> ""
+        end,
+    {_, Host} = application:get_env(ecouch, host),
+    {_, Port} = application:get_env(ecouch, port),
+   "http://" ++ Credentials ++ Host ++ ":" ++ Port.
+
 make_url(DatabaseName) ->
     make_url(DatabaseName, "", []).
 
@@ -55,12 +66,12 @@ make_url(DatabaseName, DocId) ->
     make_url(DatabaseName, DocId, []).
 
 make_url(DatabaseName, DocId, Parameters) ->
+    Host = server_url(),
     Url = case DocId of
             "" -> "";
             _ -> "/" ++ DocId
         end,
-    
-    ?SERVER ++ DatabaseName ++ Url ++ params_to_string(Parameters).
+    Host ++ "/" ++ DatabaseName ++ Url ++ params_to_string(Parameters).
 
 params_to_string(TupleList) ->
     case params_to_string(TupleList, "") of
