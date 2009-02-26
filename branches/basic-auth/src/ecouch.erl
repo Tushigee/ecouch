@@ -141,6 +141,15 @@ stop(_State) ->
 %% @hidden
     
 init([Host, Port, User, Pass]) ->
+    % making the init variable accessible through env (used by the tests)
+    case application:get_application() of
+        {ok, Application} ->
+            application:set_env(Application, host, Host),
+            application:set_env(Application, port, Port),
+            application:set_env(Application, user, User),
+            application:set_env(Application, pass, Pass);
+        _ -> ok
+    end,
     {ok,
         {_SupFlags = {one_for_one, ?MAX_RESTART, ?MAX_TIME},
             [
